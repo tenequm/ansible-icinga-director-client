@@ -1,0 +1,85 @@
+---
+- name: Add Icinga repository key.
+  apt_key: url=https://packages.icinga.com/icinga.key
+
+- name: Add Icinga repository.
+  apt_repository: repo="deb https://packages.icinga.com/{{ ansible_distribution|lower }} icinga-{{ ansible_distribution_release }} main" 
+
+- name: Installing Icinga packages.
+  apt: name="{{ item }}" state=latest
+  notify: enable icinga
+  with_items:
+    - icinga2
+    - monitoring-plugins
+
+- name: Enable Icinga api feature.
+  icinga2_feature: name=api
+
+- name: Ensure 'certs' directory exists.
+  file: path={{ icinga_client_certs_path }} state=directory owner=nagios group=nagios 
+
+- name: Register Icinga client host.
+  uri:
+    body_format: json
+    headers:
+      Accept: application/json
+    body: "{{ icinga_client_host_object }}"
+    method: POST
+    url: "{{ icinga_director_url }}/host"
+    user: "{{ icinga_director_user }}"
+    password: "{{ icinga_director_pass }}"
+    status_code: 201,500
+
+- name: Trigger Icinga Director to deploy config.
+  uri:
+    body_format: json
+    headers:
+      Accept: application/json
+    method: POST
+    url: "{{ icinga_director_url }}/config/deploy"
+    user: "{{ icinga_director_user }}"
+    password: "{{ icinga_director_pass }}"
+
+- name: Get Icinga client ticket.
+  uri:
+    headers:
+      Accept: application/json
+    url: "{{ icinga_director_url }}/host/ticket?name={{ icinga_client_fqdn }}"
+    user: "{{ icinga_director_user }}"
+    password: "{{ icinga_director_pass }}"
+    return_content: yes
+  register: icinga_client_ticket
+
+- name: Generate Icinga client certs.
+  command: >
+    icinga2 pki new-cert --cn {{ icinga_client_fqdn }} \
+    --key {{ icinga_client_certs_path ~ icinga_client_fqdn }}.key \
+    --cert {{ icinga_client_certs_path ~ icinga_client_fqdn }}.crt
+  changed_when: false
+
+- name: Get master trusted cert.
+  command: >
+    icinga2 pki save-cert --key {{ icinga_client_certs_path ~ icinga_client_fqdn }}.key \
+    --cert {{ icinga_client_certs_path ~ icinga_client_fqdn }}.crt \
+    --trustedcert {{ icinga_client_certs_path }}trusted-master.crt \
+    --host {{ icinga_master_fqdn }}
+  changed_when: false
+
+- name: Setup Icinga client node.
+  command: >
+    icinga2 node setup --ticket {{ icinga_client_ticket.json }} \
+    --cn {{ icinga_client_fqdn }} --endpoint {{ icinga_master_endpoint }} \
+    --zone {{ icinga_client_fqdn }} --master_host {{ icinga_master_fqdn }} \
+    --trustedcert {{ icinga_client_certs_path }}trusted-master.crt \
+    --accept-commands --accept-config
+  changed_when: false
+
+- name: Ensure default 'conf.d' directory is not used.
+  lineinfile: 
+    path: /etc/icinga2/icinga2.conf
+    regexp: 'include_recursive.*conf\.d'
+    line: '//include_recursive "conf.d"'
+
+- name: Restart Icinga service.
+  service: name=icinga2 state=restarted
+  changed_when: false

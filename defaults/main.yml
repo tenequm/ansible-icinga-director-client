@@ -1,0 +1,20 @@
+---
+icinga_client_fqdn: "{{ ansible_fqdn }}"
+icinga_client_ip: "{{ ansible_default_ipv4.address }}"
+icinga_client_display_name: "{{ inventory_hostname }}"
+icinga_client_certs_path: /var/lib/icinga2/certs/
+
+icinga_master_port: 5665
+icinga_master_endpoint: "{{ icinga_master_fqdn ~ ',' ~ icinga_master_ip ~ ',' ~ icinga_master_port }}"
+
+icinga_director_user: admin
+icinga_director_host_protocol: http
+icinga_director_url: "{{ icinga_director_host_protocol ~ '://' ~ icinga_master_fqdn ~ '/icingaweb2/director' }}"
+
+icinga_client_host_object:
+  object_name: "{{ icinga_client_fqdn }}"
+  display_name: "{{ icinga_client_display_name }}"
+  address: "{{ icinga_client_ip }}"
+  object_type: "object"
+  imports:
+    - "{{ icinga_client_import_template }}"
