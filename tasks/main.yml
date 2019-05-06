@@ -8,7 +8,6 @@
 - name: Installing Icinga packages.
   apt: name="{{ item }}" state=latest update_cache=yes
   notify: enable icinga
-  update_cache: "yes"
   with_items:
     - icinga2
     - monitoring-plugins
