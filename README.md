@@ -21,6 +21,8 @@ This role requires Ansible 2.4 or higher. Requirements are listed in the metadat
 | `icinga_director_user` | Yes | `admin` | Icinga Web user for API authentication.  |
 | `icinga_director_pass` | Yes | Not set | Icinga Web user password for API authentication.  |
 | `icinga_director_host_protocol` | No | `http` | Protocol used to communicate with Icinga Director - http or https.  |
+| `icinga_register_client` | No | `yes` | Register Icinga client host. Set to `no` to skip this step. |
+| `icinga_deploy_config` | No | `yes` | Trigger Icinga Director to deploy config. Set to `no` to skip this step. | 
 
 
 Example Playbook
@@ -43,3 +45,4 @@ MIT
 Author Information
 ------------------
 This role was created in 2018 by [Mykhaylo Kolesnik](http://github.com/tenequm).
+Updates by [Blue Billywig](http://github.com/bluebillywig).
