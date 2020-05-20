@@ -28,7 +28,8 @@
     url: "{{ icinga_director_url }}/host"
     user: "{{ icinga_director_user }}"
     password: "{{ icinga_director_pass }}"
-    status_code: 201,500
+    status_code: 201,422,500
+  when: icinga_register_client
 
 - name: Trigger Icinga Director to deploy config.
   uri:
@@ -39,6 +40,7 @@
     url: "{{ icinga_director_url }}/config/deploy"
     user: "{{ icinga_director_user }}"
     password: "{{ icinga_director_pass }}"
+  when: icinga_deploy_config
 
 - name: Get Icinga client ticket.
   uri:
