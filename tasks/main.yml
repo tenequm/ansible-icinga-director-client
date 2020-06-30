@@ -6,7 +6,7 @@
   apt_repository: repo="deb https://packages.icinga.com/{{ ansible_distribution|lower }} icinga-{{ ansible_distribution_release }} main" 
 
 - name: Installing Icinga packages.
-  apt: name="{{ item }}" state=latest
+  apt: name="{{ item }}" state=latest update_cache=yes
   notify: enable icinga
   with_items:
     - icinga2
@@ -28,7 +28,7 @@
     url: "{{ icinga_director_url }}/host"
     user: "{{ icinga_director_user }}"
     password: "{{ icinga_director_pass }}"
-    status_code: 201,500
+    status_code: 201,422,500
 
 - name: Trigger Icinga Director to deploy config.
   uri:
