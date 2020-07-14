@@ -6,11 +6,12 @@
   apt_repository: repo="deb https://packages.icinga.com/{{ ansible_distribution|lower }} icinga-{{ ansible_distribution_release }} main" 
 
 - name: Installing Icinga packages.
-  apt: name="{{ item }}" state=latest
+  apt:
+    pkg:
+      - icinga2
+      - monitoring-plugins
+    state: latest
   notify: enable icinga
-  with_items:
-    - icinga2
-    - monitoring-plugins
 
 - name: Enable Icinga api feature.
   icinga2_feature: name=api
