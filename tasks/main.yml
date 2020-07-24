@@ -17,6 +17,8 @@
 
 - name: Ensure 'certs' directory exists.
   file: path={{ icinga_client_certs_path }} state=directory owner=nagios group=nagios 
+  notify:
+    - restart icinga2
 
 - name: Register Icinga client host.
   uri:
@@ -51,13 +53,21 @@
     password: "{{ icinga_director_pass }}"
     return_content: yes
   register: icinga_client_ticket
+  creates:
+    - {{ icinga_client_certs_path }}ca.crt
+  notify:
+    - restart icinga2
 
 - name: Generate Icinga client certs.
   command: >
     icinga2 pki new-cert --cn {{ icinga_client_fqdn }} \
     --key {{ icinga_client_certs_path ~ icinga_client_fqdn }}.key \
     --cert {{ icinga_client_certs_path ~ icinga_client_fqdn }}.crt
-  changed_when: false
+  creates:
+    - {{ icinga_client_certs_path ~ icinga_client_fqdn }}.key
+    - {{ icinga_client_certs_path ~ icinga_client_fqdn }}.crt
+  notify:
+    - restart icinga2
 
 - name: Get master trusted cert.
   command: >
@@ -65,7 +75,10 @@
     --cert {{ icinga_client_certs_path ~ icinga_client_fqdn }}.crt \
     --trustedcert {{ icinga_client_certs_path }}trusted-master.crt \
     --host {{ icinga_master_fqdn }}
-  changed_when: false
+  creates:
+    - {{ icinga_client_certs_path }}trusted-master.crt
+  notify:
+    - restart icinga2
 
 - name: Setup Icinga client node.
   command: >
@@ -74,7 +87,10 @@
     --zone {{ icinga_client_fqdn }} --master_host {{ icinga_master_fqdn }} \
     --trustedcert {{ icinga_client_certs_path }}trusted-master.crt \
     --accept-commands --accept-config
-  changed_when: false
+  creates:
+    - {{ icinga_client_certs_path }}ca.crt
+  notify:
+    - restart icinga2
 
 - name: Ensure default 'conf.d' directory is not used.
   lineinfile: 
@@ -82,6 +98,12 @@
     regexp: 'include_recursive.*conf\.d'
     line: '//include_recursive "conf.d"'
 
-- name: Restart Icinga service.
-  service: name=icinga2 state=restarted
-  changed_when: false
+- name: ensure icinga2 is running
+  service:
+    name: icinga2
+    state: started
+handlers:
+  - name: restart icinga2
+    service:
+      name: icinga2
+      state: restarted
