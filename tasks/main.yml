@@ -58,7 +58,7 @@
 
 - name: Check key existance
   stat:
-    path: {{ icinga_client_certs_path ~ icinga_client_fqdn }}.key
+    path: "{{ icinga_client_certs_path ~ icinga_client_fqdn }}.key"
   register: key_exists
 
 - name: Generate Icinga client certs.
@@ -72,7 +72,7 @@
 
 - name: Check crt existance
   stat:
-    path: {{ icinga_client_certs_path ~ icinga_client_fqdn }}.crt
+    path: "{{ icinga_client_certs_path ~ icinga_client_fqdn }}.crt"
   register: crt_exists
 
 - name: Get master trusted cert.
@@ -87,7 +87,7 @@
 
 - name: Check ca existance
   stat:
-    path: {{ icinga_client_certs_path }}ca.crt
+    path: "{{ icinga_client_certs_path }}ca.crt"
   register: ca_exists
 
 - name: Setup Icinga client node.
