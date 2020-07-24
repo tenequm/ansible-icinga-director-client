@@ -1,3 +1,5 @@
 ---
-- name: enable icinga
-  service: name=icinga2 state=started enabled=yes
+- name: restart icinga2
+  service:
+    name: icinga2
+    state: restarted
