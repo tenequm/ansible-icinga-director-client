@@ -67,16 +67,16 @@
     - restart icinga2
   when: not key_exists.stat.exists
 
-- name: Check crt existance
+- name: Check master crt existance
   stat:
-    path: "{{ icinga_client_certs_path ~ icinga_client_fqdn }}.crt"
-  register: crt_exists
+    path: "{{ icinga_client_certs_path }}trusted-master.crt"
+  register: master_crt_exists
 
 - name: Get master trusted cert.
   command: "icinga2 pki save-cert --key {{ icinga_client_certs_path ~ icinga_client_fqdn }}.key --cert {{ icinga_client_certs_path ~ icinga_client_fqdn }}.crt --trustedcert {{ icinga_client_certs_path }}trusted-master.crt --host {{ icinga_master_fqdn }}"
   notify:
     - restart icinga2
-  when: not crt_exists.stat.exists
+  when: not master_crt_exists.stat.exists
 
 - name: Check ca existance
   stat:
@@ -84,7 +84,7 @@
   register: ca_exists
 
 - name: Setup Icinga client node.
-  command: "icinga2 node setup --ticket {{ icinga_client_ticket.json }} --cn {{ icinga_client_fqdn }} --endpoint {{ icinga_master_endpoint }} --zone {{ icinga_client_fqdn }} --master_host {{ icinga_master_fqdn }} --trustedcert {{ icinga_client_certs_path }}trusted-master.crt --accept-commands --accept-config"
+  command: "icinga2 node setup --ticket {{ icinga_client_ticket.json }} --cn {{ icinga_client_fqdn }} --endpoint {{ icinga_master_endpoint }} --zone {{ icinga_client_fqdn }} --parent_host {{ icinga_master_fqdn }} --trustedcert {{ icinga_client_certs_path }}trusted-master.crt --accept-commands --accept-config"
   notify:
     - restart icinga2
   when: not ca_exists.stat.exists
