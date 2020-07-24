@@ -54,7 +54,7 @@
     return_content: yes
   register: icinga_client_ticket
   creates:
-    - {{ icinga_client_certs_path }}ca.crt
+    - "{{ icinga_client_certs_path }}ca.crt"
   notify:
     - restart icinga2
 
@@ -71,8 +71,8 @@
     --key {{ icinga_client_certs_path ~ icinga_client_fqdn }}.key \
     --cert {{ icinga_client_certs_path ~ icinga_client_fqdn }}.crt
   creates:
-    - {{ icinga_client_certs_path ~ icinga_client_fqdn }}.key
-    - {{ icinga_client_certs_path ~ icinga_client_fqdn }}.crt
+    - "{{ icinga_client_certs_path ~ icinga_client_fqdn }}.key"
+    - "{{ icinga_client_certs_path ~ icinga_client_fqdn }}.crt"
   notify:
     - restart icinga2
 
@@ -83,7 +83,7 @@
     --trustedcert {{ icinga_client_certs_path }}trusted-master.crt \
     --host {{ icinga_master_fqdn }}
   creates:
-    - {{ icinga_client_certs_path }}trusted-master.crt
+    - "{{ icinga_client_certs_path }}trusted-master.crt"
   notify:
     - restart icinga2
 
@@ -95,7 +95,7 @@
     --trustedcert {{ icinga_client_certs_path }}trusted-master.crt \
     --accept-commands --accept-config
   creates:
-    - {{ icinga_client_certs_path }}ca.crt
+    - "{{ icinga_client_certs_path }}ca.crt"
   notify:
     - restart icinga2
 
