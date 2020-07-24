@@ -6,11 +6,11 @@
   apt_repository: repo="deb https://packages.icinga.com/{{ ansible_distribution|lower }} icinga-{{ ansible_distribution_release }} main" 
 
 - name: Installing Icinga packages.
-  apt: name="{{ item }}" state=latest
-  notify: enable icinga
-  with_items:
-    - icinga2
-    - monitoring-plugins
+  apt:
+    pkg:
+      - icinga2
+      - monitoring-plugins
+    state: latest
 
 - name: Enable Icinga api feature.
   icinga2_feature: name=api
@@ -58,7 +58,14 @@
   notify:
     - restart icinga2
 
-- name: Generate Icinga client certs.
+- nt Icinga client ticket.
+  uri:
+    headers:
+      Accept: application/json
+    url: "{{ icinga_director_url }}/host/ticket?name={{ icinga_client_fqdn }}"
+    user: "{{ icinga_director_user }}"
+    password: "{{ icinga_director_pass }}"
+    return_content: yesame: Generate Icinga client certs.
   command: >
     icinga2 pki new-cert --cn {{ icinga_client_fqdn }} \
     --key {{ icinga_client_certs_path ~ icinga_client_fqdn }}.key \
