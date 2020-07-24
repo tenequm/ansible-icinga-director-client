@@ -53,7 +53,7 @@
     password: "{{ icinga_director_pass }}"
     return_content: yes
   register: icinga_client_ticket
-  creates: {{ icinga_client_certs_path }}ca.crt
+  creates: "{{ icinga_client_certs_path }}ca.crt"
   notify:
     - restart icinga2
 
@@ -69,7 +69,7 @@
     icinga2 pki new-cert --cn {{ icinga_client_fqdn }} \
     --key {{ icinga_client_certs_path ~ icinga_client_fqdn }}.key \
     --cert {{ icinga_client_certs_path ~ icinga_client_fqdn }}.crt
-  creates: {{ icinga_client_certs_path ~ icinga_client_fqdn }}.key
+  creates: "{{ icinga_client_certs_path ~ icinga_client_fqdn }}.key"
   notify:
     - restart icinga2
 
@@ -79,7 +79,7 @@
     --cert {{ icinga_client_certs_path ~ icinga_client_fqdn }}.crt \
     --trustedcert {{ icinga_client_certs_path }}trusted-master.crt \
     --host {{ icinga_master_fqdn }}
-  creates: {{ icinga_client_certs_path }}trusted-master.crt
+  creates: "{{ icinga_client_certs_path }}trusted-master.crt"
   notify:
     - restart icinga2
 
@@ -90,7 +90,7 @@
     --zone {{ icinga_client_fqdn }} --master_host {{ icinga_master_fqdn }} \
     --trustedcert {{ icinga_client_certs_path }}trusted-master.crt \
     --accept-commands --accept-config
-  creates: {{ icinga_client_certs_path }}ca.crt
+  creates: "{{ icinga_client_certs_path }}ca.crt"
   notify:
     - restart icinga2
 
