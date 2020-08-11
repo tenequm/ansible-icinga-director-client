@@ -1,0 +1,17 @@
+# Create checks directory
+- name: Create /etc/icinga2/scripts/checks
+  file:
+    path: /etc/icinga2/scripts/checks
+    state: directory
+    mode: '0755'
+    owner: nagios
+    group: nagios
+
+- name: Copy checks to the right directory
+  copy:
+    force: yes
+    src: checks/
+    dest: /etc/icinga2/scripts/checks/
+    mode: '0755'
+    owner: nagios
+    group: nagios

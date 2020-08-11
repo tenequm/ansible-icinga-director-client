@@ -95,6 +95,9 @@
     regexp: 'include_recursive.*conf\.d'
     line: '//include_recursive "conf.d"'
 
+# Custom checks tasks
+- import_tasks: checks.yml
+
 - name: ensure icinga2 is running
   service:
     name: icinga2
