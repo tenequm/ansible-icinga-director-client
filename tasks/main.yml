@@ -7,7 +7,7 @@
 
 - name: Installing Icinga packages.
   apt:
-    pkg:
+    name:
       - icinga2
       - monitoring-plugins
     state: latest
