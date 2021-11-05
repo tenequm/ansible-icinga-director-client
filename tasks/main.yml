@@ -12,6 +12,14 @@
       - monitoring-plugins
     state: latest
 
+- name: Recursively change ownership of /etc/icinga2 after installation
+  file:
+    path: /etc/icinga2
+    state: directory
+    recurse: yes
+    owner: nagios
+    group: nagios
+
 - name: Enable Icinga api feature.
   icinga2_feature: name=api
 
